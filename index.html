@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelateria Pastel | Sabores Artesanais & IA</title>
+    
+    <!-- Ícones (Phosphor Icons - Leve e Moderno) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container nav-wrapper">
+            <div class="logo">
+                <i class="ph ph-ice-cream"></i> Pastel Gelato
+            </div>
+            <button class="cart-trigger" onclick="toggleCart()">
+                <i class="ph ph-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="container">
+        <section class="hero" id="heroSection">
+            <h1>Doçura em cada detalhe.</h1>
+            <p>Sorvetes artesanais, ingredientes frescos e uma experiência inesquecível. Peça agora e receba a felicidade em casa.</p>
+            
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="scrollToMenu()">
+                    Ver Cardápio <i class="ph ph-arrow-down"></i>
+                </button>
+                <button class="btn-secondary" onclick="openSundaeBuilder()">
+                    <i class="ph ph-magic-wand"></i> Montar Sundae
+                </button>
+                <button class="btn-ai" onclick="openAIChef()">
+                    <i class="ph ph-sparkle"></i> Chef Virtual ✨
+                </button>
+            </div>
+        </section>
+
+        <!-- Status do Pedido (Oculto inicialmente) -->
+        <section id="orderStatus" class="status-container">
+            <h2><i class="ph ph-receipt"></i> Pedido #<span id="orderId">001</span></h2>
+            <p>Acompanhe o status do seu pedido em tempo real.</p>
+            
+            <div class="progress-bar">
+                <div class="step active" id="step1">
+                    <i class="ph ph-cooking-pot"></i>
+                    <span class="step-label">Preparando</span>
+                </div>
+                <div class="step" id="step2">
+                    <i class="ph ph-package"></i>
+                    <span class="step-label">Pronto</span>
+                </div>
+                <div class="step" id="step3">
+                    <i class="ph ph-moped"></i>
+                    <span class="step-label">Em Entrega</span>
+                </div>
+            </div>
+            <div style="margin-top: 50px;">
+                <p>Previsão: <strong id="deliveryTime">--:--</strong></p>
+            </div>
+        </section>
+
+        <!-- Filtros -->
+        <section class="filters" id="menuFilters">
+            <button class="filter-btn active" onclick="filterMenu('all')">Todos</button>
+            <button class="filter-btn" onclick="filterMenu('bestseller')">Mais Vendidos</button>
+            <button class="filter-btn" onclick="filterMenu('vegan')">Veganos</button>
+            <button class="filter-btn" onclick="filterMenu('lactose-free')">Sem Lactose</button>
+            <button class="filter-btn" onclick="filterMenu('topping')">Acompanhamentos</button>
+        </section>
+
+        <!-- Grid de Produtos -->
+        <main class="menu-grid" id="menuGrid">
+            <!-- Items rendered via JS -->
+        </main>
+    </div>
+
+    <!-- Carrinho (Drawer) -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="drawer">
+            <div class="drawer-header">
+                <h2>Seu Carrinho</h2>
+                <button onclick="toggleCart()"><i class="ph ph-x"></i></button>
+            </div>
+            
+            <div class="cart-items" id="cartItemsContainer">
+                <!-- Cart items rendered via JS -->
+                <p style="text-align:center; color: #888; margin-top: 20px;">Seu carrinho está vazio 🍦</p>
+            </div>
+
+            <div class="cart-footer">
+                <!-- Agendamento -->
+                <label style="font-size: 0.9rem; font-weight: 600;">Agendar Entrega (Opcional):</label>
+                <input type="datetime-local" id="scheduleTime">
+                
+                <!-- Pagamento -->
+                <label style="font-size: 0.9rem; font-weight: 600;">Forma de Pagamento:</label>
+                <select id="paymentMethod">
+                    <option value="pix">PIX (5% desc)</option>
+                    <option value="card">Cartão de Crédito</option>
+                    <option value="cash">Dinheiro</option>
+                </select>
+
+                <div class="total-row">
+                    <span>Total</span>
+                    <span id="cartTotal">R$ 0,00</span>
+                </div>
+                <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="checkout()">
+                    Finalizar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Montar Sundae -->
+    <div class="modal-overlay" id="sundaeOverlay" style="justify-content: center; align-items: center;">
+        <div class="custom-sundae-modal" style="display: block; position: relative;" onclick="event.stopPropagation()">
+            <button onclick="closeSundaeBuilder()" style="position: absolute; right: 20px; top: 20px;"><i class="ph ph-x"></i></button>
+            <h2>Montar Sundae 🍨</h2>
+            <p>Crie sua combinação perfeita!</p>
+            
+            <div style="margin: 20px 0;">
+                <label>1. Escolha a Base:</label>
+                <select id="sundaeBase">
+                    <option value="Baunilha">Baunilha</option>
+                    <option value="Chocolate">Chocolate</option>
+                    <option value="Morango">Morango</option>
+                </select>
+
+                <label style="margin-top: 10px; display:block;">2. Escolha a Calda:</label>
+                <select id="sundaeSyrup">
+                    <option value="Chocolate Quente">Chocolate Quente</option>
+                    <option value="Caramelo Salgado">Caramelo Salgado</option>
+                    <option value="Frutas Vermelhas">Frutas Vermelhas</option>
+                </select>
+
+                <label style="margin-top: 10px; display:block;">3. Extra:</label>
+                <select id="sundaeExtra">
+                    <option value="Castanhas">Castanhas</option>
+                    <option value="Granulado">Granulado Colorido</option>
+                    <option value="Paçoca">Paçoca</option>
+                </select>
+            </div>
+
+            <!-- AI Feature: Creative Naming -->
+            <div class="magic-name-display" id="magicNameDisplay">
+                <div class="magic-name-title" id="generatedName"></div>
+                <div style="font-size: 0.8rem; color: #666;" id="generatedDesc"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn-ai-small" onclick="generateMagicName()" style="flex: 1; justify-content: center;">
+                   ✨ Gerar Nome Mágico
+                </button>
+            </div>
+
+            <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="addSundaeToCart()">
+                Adicionar ao Carrinho - R$ 22,90
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal AI Chef -->
+    <div class="modal-overlay" id="aiChefOverlay" style="justify-content: center; align-items: center;">
+        <div class="ai-chef-modal" onclick="event.stopPropagation()">
+            <button onclick="closeAIChef()" style="position: absolute; right: 20px; top: 20px;"><i class="ph ph-x"></i></button>
+            <h2 style="color: var(--color-purple); display: flex; align-items: center; gap: 8px;">
+                <i class="ph ph-sparkle"></i> Chef Virtual
+            </h2>
+            <p style="margin-bottom: 10px;">Conte como você está se sentindo ou o que gostaria de provar hoje!</p>
+            
+            <div class="ai-input-area">
+                <textarea id="aiChefInput" placeholder="Ex: Estou feliz mas com calor, quero algo refrescante!"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn-ai" onclick="askAIChef()">
+                    Pedir Sugestão ✨
+                </button>
+                <div id="aiChefLoading" class="typing-indicator" style="display: none; color: var(--color-purple);">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+
+            <div class="ai-result" id="aiChefResult">
+                <!-- AI Output Here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="ph ph-check-circle"></i>
+        <span id="toastMsg">Adicionado ao carrinho!</span>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
